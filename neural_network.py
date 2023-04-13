@@ -10,7 +10,9 @@ from sklearn.metrics import accuracy_score, classification_report
 from prepare_dataframe import *
 
 
-def prepare_sets(X_test, y_train, y_test):
+def prepare_sets(
+    X_test: pd.DataFrame, y_train: pd.Series, y_test: pd.Series
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
     """
     This function prepares the data sets needed to train a neural network. 
     
@@ -32,14 +34,26 @@ def prepare_sets(X_test, y_train, y_test):
     return X_test, X_valid, y_train, y_test, y_valid
 
 
-def reverse_one_hot_encoding(y_test, y_pred):
+def reverse_one_hot_encoding(
+        y_test: np.ndarray,
+        y_pred: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Convert target vectors one-hot encoding to label encoding 
+    by taking the index of the maximum value along the second dimension of the array.
+    """
+
     y_label = np.argmax(y_test, axis=1)
     y_pred_label = np.argmax(y_pred, axis=1)
+    print((y_label))
 
     return y_label, y_pred_label
 
 
-def calculate_metrics(y_test, y_pred):
+def calculate_metrics(y_test: np.ndarray,
+                      y_pred: np.ndarray) -> tuple[np.float64, str]:
+    """
+    Calculate accuracy score and classification report for a classification model.
+    """
 
     target_names = [
         "1 -- Spruce/Fir", "2 -- Lodgepole Pine", "3 -- Ponderosa Pine",
@@ -57,7 +71,13 @@ def calculate_metrics(y_test, y_pred):
     return nn_score, nn_report
 
 
-def neural_network(X_train, X_test, y_train, y_test) -> tuple[np.float64, str]:
+def neural_network(X_train: pd.DataFrame, X_test: pd.DataFrame,
+                   y_train: pd.Series,
+                   y_test: pd.Series) -> tuple[np.float64, str]:
+    """
+    Trains a neural network model on the provided training data 
+    and returns the accuracy score and classification report on the test data.
+    """
 
     FEATURES_NUMBER = (X_train.shape[1])
 
