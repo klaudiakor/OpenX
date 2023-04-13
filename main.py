@@ -7,6 +7,7 @@ from prepare_dataframe import *
 
 #PREPROCESSING
 df = prepare_data_frame()
+# print(df.shape)
 # print(df.isna().sum())
 
 X, y = split_df(df)
@@ -26,3 +27,5 @@ X_test, X_valid, y_test, y_valid = train_test_split(X_temp,
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
+
+# (64, 2, 'adam', 'tanh', [27, 13])
