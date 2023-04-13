@@ -1,9 +1,7 @@
+import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, classification_report
-from sklearn.preprocessing import StandardScaler
-import numpy as np
 
 from prepare_dataframe import *
 
@@ -41,17 +39,10 @@ def k_nearest_neighbors(X_train: pd.DataFrame, X_test: pd.DataFrame,
 if __name__ == "__main__":
     df = prepare_data_frame()
     X, y = split_df(df)
-    X_train, X_test, y_train, y_test = train_test_split(X,
-                                                        y,
-                                                        test_size=0.3,
-                                                        random_state=42)
-
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    X_train, X_test, y_train, y_test = preprocessing(X, y)
 
     log_reg_score = logistic_regression(X_train, X_test, y_train, y_test)
     knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test)
 
-    print(f"Logistic Regression accuracy score: {log_reg_score}")  #TODO: 72%
-    print(f"K-Nearest Neigbours accuracy score: {knn_score}")  #TODO: 92%
+    print_results("Logistic Regression", log_reg_score)
+    print_results("K-Nearest Neigbours", knn_score)

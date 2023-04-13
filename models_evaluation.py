@@ -1,24 +1,9 @@
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 
 from prepare_dataframe import *
 from heuristic import *
 from baseline_models import *
 from neural_network import *
-
-
-def print_results(title: str, score: tuple[np.float64, str]):
-    print(
-        "----------------------------------------------------------------------"
-    )
-    print(f" {title}")
-    print(
-        " - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -"
-    )
-    print(score[1])
-    print(f"Accuracy: {score[0]}")
-
 
 #LOAD DATA
 df = prepare_data_frame()
@@ -33,17 +18,7 @@ print(
 heuristic_score = heuristic_classifier(X, y)
 print_results("Heuristic Classifier", heuristic_score)
 
-#PREPROCESSING
-scaler = StandardScaler()
-X = scaler.fit_transform(X)
-
-# train data - 70%
-# test data - 15%
-# validation data - 15%
-X_train, X_test, y_train, y_test = train_test_split(X,
-                                                    y,
-                                                    train_size=0.70,
-                                                    random_state=1)
+X_train, X_test, y_train, y_test = preprocessing(X, y)
 
 # Baseline models
 log_reg_score = logistic_regression(X_train, X_test, y_train, y_test)

@@ -1,4 +1,7 @@
 import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 
 def get_item_from_txt(path: str, column_index: int) -> list:
@@ -16,7 +19,7 @@ def get_item_from_txt(path: str, column_index: int) -> list:
 
 def get_columns_names() -> list[str]:
     """
-    return list of columns names
+    Return list of columns names
     """
     ATTRIBUTE_NAMES_COLUMN_INDEX = 0
     SOIL_TYPES_COLUMN_INDEX = 1
@@ -67,6 +70,37 @@ def split_df(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     y = dataframe.iloc[:, -1]
 
     return X, y
+
+
+def preprocessing(
+        X: pd.DataFrame, y: pd.Series
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    """
+    Preprocesses the input features and labels by scaling the features and splitting them into training and testing sets.
+    """
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(X,
+                                                        y,
+                                                        train_size=0.70,
+                                                        random_state=1)
+    return X_train, X_test, y_train, y_test
+
+
+def print_results(title: str, score: tuple[np.float64, str]):
+    """
+    Prints the classification report and accuracy score for a given title and score tuple.
+    """
+    print(
+        "----------------------------------------------------------------------"
+    )
+    print(f" {title}")
+    print(
+        " - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -"
+    )
+    print(score[1])
+    print(f"Accuracy: {score[0]}")
 
 
 if __name__ == "__main__":

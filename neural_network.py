@@ -3,9 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
-from sklearn.discriminant_analysis import StandardScaler
-from sklearn.model_selection import train_test_split
 from keras.utils import np_utils
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from itertools import product
 
@@ -73,6 +72,9 @@ def calculate_metrics(y_test: np.ndarray,
 def create_model(hidden_layers_units: list[int], activation_function: str,
                  loss: str, optimizer: str,
                  metrics: str) -> keras.engine.sequential.Sequential:
+    """
+    Creates a neural network model using Keras with the specified hyperparameters.
+    """
 
     model = Sequential()
 
@@ -253,14 +255,7 @@ if __name__ == "__main__":
     df = prepare_data_frame()
     X, y = split_df(df)
 
-    #scaling
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X)
-
-    X_train, X_test, y_train, y_test = train_test_split(X,
-                                                        y,
-                                                        train_size=0.60,
-                                                        random_state=1)
+    X_train, X_test, y_train, y_test = preprocessing(X, y)
 
     result = find_best_params(
         {
