@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from prepare_dataframe import *
 
 
-def hauristic_classifier(X: pd.DataFrame) -> pd.Series:
+def heuristic_classifier(X: pd.DataFrame, y: pd.Series) -> pd.Series:
     """
     A simple heuristic classifier that uses wilderness area features to predict cover type labels.
 
@@ -13,11 +13,13 @@ def hauristic_classifier(X: pd.DataFrame) -> pd.Series:
     -----------
     X : pandas DataFrame
         A DataFrame containing feature data to be used for prediction.
+    y : pandas Series
+        A Series containing target data to be predicted.
 
     Returns:
     --------
-    y_pred : pandas Series
-        A Series containing the predicted class labels for the input feature data.
+    (accuracy, report) 
+        A tuple containing the accuracy and classification report.
 
     Idea:
     -----
@@ -46,15 +48,15 @@ def hauristic_classifier(X: pd.DataFrame) -> pd.Series:
         elif row['Wilderness_Area_4']:
             y_pred.append(3)
 
-    return y_pred
+    accuracy = accuracy_score(y, y_pred)
+    report = classification_report(y, y_pred)
+    return accuracy, report
 
 
 if __name__ == "__main__":
     df = prepare_data_frame()
     X, y = split_df(df)
 
-    y_pred = hauristic_classifier(X)
-    score = accuracy_score(y, y_pred)
-    report = classification_report(y, y_pred)
-    print("Accuracy score: {}".format(score))
+    accuracy, report = heuristic_classifier(X, y)
+    print(f"Accuracy score: {accuracy}")
     print(report)

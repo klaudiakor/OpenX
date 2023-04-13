@@ -1,5 +1,6 @@
 import keras
 import numpy as np
+import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.discriminant_analysis import StandardScaler
@@ -58,17 +59,12 @@ def calculate_metrics(y_test: np.ndarray,
     Calculate accuracy score and classification report for a classification model.
     """
 
-    target_names = [
-        "1 -- Spruce/Fir", "2 -- Lodgepole Pine", "3 -- Ponderosa Pine",
-        "4 -- Cottonwood/Willow", "5 -- Aspen", "6 -- Douglas-fir",
-        "7 -- Krummholz"
-    ]
-
     y_label, y_pred_label = reverse_one_hot_encoding(y_test, y_pred)
 
-    nn_report = (classification_report(y_label,
-                                       y_pred_label,
-                                       target_names=target_names))
+    nn_report = (classification_report(
+        y_label,
+        y_pred_label,
+    ))
     nn_score = accuracy_score(y_label, y_pred_label)
 
     return nn_score, nn_report
@@ -96,11 +92,38 @@ def create_model(hidden_layers_units: list[int], activation_function: str,
     return model
 
 
-def neural_network(X_train: pd.DataFrame, X_test: pd.DataFrame,
-                   y_train: pd.Series, y_test: pd.Series,
-                   hidden_layers_units: list[int], activation_function: str,
-                   loss: str, optimizer: str, metrics: str, epochs: int,
-                   batch_size: int) -> tuple[np.float64, str]:
+def plot_training_curves(history: keras.callbacks.History):
+    """
+    Plots the training and validation loss for a given Keras history object.
+    
+    Parameters:
+    ---
+        history: A Keras history object, containing the training and validation loss
+            values for each epoch.
+    """
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+
+    plt.title('Training and Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig("nn_training_curves.png")
+    # plt.show()
+
+
+def neural_network(X_train: pd.DataFrame,
+                   X_test: pd.DataFrame,
+                   y_train: pd.Series,
+                   y_test: pd.Series,
+                   hidden_layers_units: list[int],
+                   activation_function: str,
+                   loss: str,
+                   optimizer: str,
+                   metrics: str,
+                   epochs: int,
+                   batch_size: int,
+                   visualization=False) -> tuple[np.float64, str]:
     """
     Trains a neural network model on the provided training data 
     and returns the accuracy score and classification report on the test data.
@@ -129,6 +152,8 @@ def neural_network(X_train: pd.DataFrame, X_test: pd.DataFrame,
         Number of epochs to train the model.
     batch_size: int
         Number of samples per gradient update.
+    visualization: bool
+        If set to True (default is False), the function will display the training curves.
         
     Returns:
     -----------
@@ -144,13 +169,17 @@ def neural_network(X_train: pd.DataFrame, X_test: pd.DataFrame,
                          optimizer=optimizer,
                          metrics=metrics)
 
-    model.fit(X_train,
-              y_train,
-              validation_data=(X_valid, y_valid),
-              epochs=epochs,
-              batch_size=batch_size)
+    history = model.fit(X_train,
+                        y_train,
+                        validation_data=(X_valid, y_valid),
+                        epochs=epochs,
+                        batch_size=batch_size,
+                        verbose=0)
 
     y_pred = model.predict(X_test)
+
+    if visualization:
+        plot_training_curves(history)
 
     return calculate_metrics(y_test, y_pred)
 
@@ -191,8 +220,6 @@ def find_best_params(param_grid: dict, X_train: pd.DataFrame,
     -----------
     A tuple containing the hyperparameters with the highest accuracy in the following order: 
         batch_size, epochs, optimizer, activation_function, and hidden_layers_units.
-
- 
     """
 
     hyperparam_results = [

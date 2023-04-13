@@ -1,7 +1,7 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
@@ -11,31 +11,31 @@ from prepare_dataframe import *
 def logistic_regression(X_train: pd.DataFrame, X_test: pd.DataFrame,
                         y_train: pd.Series, y_test: pd.Series) -> np.float64:
     """
-    Trains a logistic regression model on the provided training data 
-    and returns the accuracy score on the test data.
+    Trains a logistic regression model on the provided training data.
+    Returns the tuple with accuracy score and classification report.
     """
 
     model = LogisticRegression(max_iter=10000)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    score = accuracy_score(y_test, y_pred)
 
-    return score
+    return accuracy_score(y_test,
+                          y_pred), classification_report(y_test, y_pred)
 
 
 def k_nearest_neighbors(X_train: pd.DataFrame, X_test: pd.DataFrame,
                         y_train: pd.Series, y_test: pd.Series) -> np.float64:
     """
-    Trains a k-nearest neighbors classifier on the provided training data 
-    and returns the accuracy score on the test data.
+    Trains a k-nearest neighbors classifier on the provided training data.
+    Returns the tuple with accuracy score and classification report.
     """
 
     model = KNeighborsClassifier()
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    score = accuracy_score(y_test, y_pred)
 
-    return score
+    return accuracy_score(y_test,
+                          y_pred), classification_report(y_test, y_pred)
 
 
 if __name__ == "__main__":
