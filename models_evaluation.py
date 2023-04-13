@@ -1,5 +1,3 @@
-import numpy as np
-
 from prepare_dataframe import *
 from heuristic import *
 from baseline_models import *

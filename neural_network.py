@@ -1,9 +1,11 @@
+from typing import Literal
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.utils import np_utils
+from pydantic import BaseModel
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from itertools import product
@@ -248,6 +250,38 @@ def find_best_params(param_grid: dict, X_train: pd.DataFrame,
         hyperparam_results.append((score[0], hyperparams))
 
     return max(hyperparam_results, key=lambda x: x[0])[1]
+
+
+NEURAL_NETWORK_MODEL_NAME = "nn"
+
+
+class Neural_network_params(BaseModel):
+    model_type: Literal['nn'] = NEURAL_NETWORK_MODEL_NAME
+    hidden_layers_units = [27]
+    activation_function = 'relu'
+    loss = 'binary_crossentropy'
+    optimizer = 'adam'
+    metrics = 'accuracy'
+    epochs = 10
+    batch_size = 32
+
+
+class Neural_network_runner(BaseModel):
+    name = "Neural network"
+    example_params = Neural_network_params()
+    description = """Trains a neural network model. 
+    Params: hidden_layers_units: list[int] - A number of neurons in each hidden layer. | activation_function: str - Eg. 'linear', 'relu', 'tanh', 'sigmoid' | loss: str - Loss function. Eg. 'binary_crossentropy' | optimizer: str - Eg. 'Adam', 'sgd' | metrics: str - Eg. 'accuracy', 'mse' | epochs: int - Number of epochs to train the model. | batch_size: int - Number of samples per gradient update."""
+
+    def run(self, param: Neural_network_params):
+        df = prepare_data_frame()
+        X, y = split_df(df)
+
+        X_train, X_test, y_train, y_test = preprocessing(X, y)
+        return neural_network(X_train, X_test, y_train, y_test,
+                              param.hidden_layers_units,
+                              param.activation_function, param.loss,
+                              param.optimizer, param.metrics, param.epochs,
+                              param.batch_size)  #TODO: params in one
 
 
 if __name__ == "__main__":
