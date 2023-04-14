@@ -42,12 +42,12 @@ def run_log_regr_model(params: Logistic_regression_params):
 
 
 @app.post(f"/model/{KNN_MODEL_NAME}")
-def run_log_regr_model(params: K_nearest_neighbors_params):
+def run_knn_model(params: K_nearest_neighbors_params):
     """Returns accuracy and classification report of K-Nearest neighbors model trained on specified paramethers."""
     return models[KNN_MODEL_NAME].run(params)
 
 
 @app.post(f"/model/{NEURAL_NETWORK_MODEL_NAME}")
-def run_log_regr_model(params: Neural_network_params):
+def run_nn_model(params: Neural_network_params):
     """Returns accuracy and classification report of neural network model trained on specified paramethers."""
     return models[NEURAL_NETWORK_MODEL_NAME].run(params)

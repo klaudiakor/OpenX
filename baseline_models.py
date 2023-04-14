@@ -7,14 +7,12 @@ from sklearn.metrics import accuracy_score, classification_report
 from prepare_dataframe import *
 
 LOGISTIC_REGR_MODEL_NAME = "logistic"
+KNN_MODEL_NAME = "knn"
 
 
 class Logistic_regression_params(BaseModel):
     penalty = 'l2'
     max_iter = 10000
-
-
-KNN_MODEL_NAME = "knn"
 
 
 class K_nearest_neighbors_params(BaseModel):
