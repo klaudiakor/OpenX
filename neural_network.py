@@ -1,4 +1,3 @@
-from typing import Literal
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,6 +13,17 @@ from prepare_dataframe import *
 
 FEATURES_NUMBER = 54
 TARGET_CATEGORIES_NUMBER = 7
+NEURAL_NETWORK_MODEL_NAME = "nn"
+
+
+class Neural_network_params(BaseModel):
+    hidden_layers_units = [27]
+    activation_function = 'relu'
+    loss = 'binary_crossentropy'
+    optimizer = 'adam'
+    metrics = 'accuracy'
+    epochs = 10
+    batch_size = 32
 
 
 def prepare_sets(
@@ -120,13 +130,7 @@ def neural_network(X_train: pd.DataFrame,
                    X_test: pd.DataFrame,
                    y_train: pd.Series,
                    y_test: pd.Series,
-                   hidden_layers_units: list[int],
-                   activation_function: str,
-                   loss: str,
-                   optimizer: str,
-                   metrics: str,
-                   epochs: int,
-                   batch_size: int,
+                   params: Neural_network_params,
                    visualization=False) -> tuple[np.float64, str]:
     """
     Trains a neural network model on the provided training data 
@@ -142,20 +146,21 @@ def neural_network(X_train: pd.DataFrame,
         A Series containing the target values for the training data.
     y_test : pandas.Series
         A Series containing the target values for the testing data.
-    hidden_layers_units: list[int]
-        A number of neurons in each hidden layer.
-    activation_function: str
-        Eg. 'linear', 'relu', 'tanh', 'sigmoid'
-    loss: str
-        Loss function. Eg. 'binary_crossentropy'
-    optimizer: str
-        Eg. 'Adam', 'sgd'
-    metrics: str
-        Eg. 'accuracy', 'mse'
-    epochs: int
-        Number of epochs to train the model.
-    batch_size: int
-        Number of samples per gradient update.
+    params: Neural_network_params
+        hidden_layers_units: list[int]
+            A number of neurons in each hidden layer.
+        activation_function: str
+            Eg. 'linear', 'relu', 'tanh', 'sigmoid'
+        loss: str
+            Loss function. Eg. 'binary_crossentropy'
+        optimizer: str
+            Eg. 'Adam', 'sgd'
+        metrics: str
+            Eg. 'accuracy', 'mse'
+        epochs: int
+            Number of epochs to train the model.
+        batch_size: int
+            Number of samples per gradient update.
     visualization: bool
         If set to True (default is False), the function will display the training curves.
         
@@ -167,17 +172,17 @@ def neural_network(X_train: pd.DataFrame,
     X_test, X_valid, y_train, y_test, y_valid = prepare_sets(
         X_test, y_train, y_test)
 
-    model = create_model(hidden_layers_units=hidden_layers_units,
-                         activation_function=activation_function,
-                         loss=loss,
-                         optimizer=optimizer,
-                         metrics=metrics)
+    model = create_model(hidden_layers_units=params.hidden_layers_units,
+                         activation_function=params.activation_function,
+                         loss=params.loss,
+                         optimizer=params.optimizer,
+                         metrics=params.metrics)
 
     history = model.fit(X_train,
                         y_train,
                         validation_data=(X_valid, y_valid),
-                        epochs=epochs,
-                        batch_size=batch_size,
+                        epochs=params.epochs,
+                        batch_size=params.batch_size,
                         verbose=0)
 
     y_pred = model.predict(X_test)
@@ -252,23 +257,8 @@ def find_best_params(param_grid: dict, X_train: pd.DataFrame,
     return max(hyperparam_results, key=lambda x: x[0])[1]
 
 
-NEURAL_NETWORK_MODEL_NAME = "nn"
-
-
-class Neural_network_params(BaseModel):
-    model_type: Literal['nn'] = NEURAL_NETWORK_MODEL_NAME
-    hidden_layers_units = [27]
-    activation_function = 'relu'
-    loss = 'binary_crossentropy'
-    optimizer = 'adam'
-    metrics = 'accuracy'
-    epochs = 10
-    batch_size = 32
-
-
 class Neural_network_runner(BaseModel):
     name = "Neural network"
-    example_params = Neural_network_params()
     description = """Trains a neural network model. 
     Params: hidden_layers_units: list[int] - A number of neurons in each hidden layer. | activation_function: str - Eg. 'linear', 'relu', 'tanh', 'sigmoid' | loss: str - Loss function. Eg. 'binary_crossentropy' | optimizer: str - Eg. 'Adam', 'sgd' | metrics: str - Eg. 'accuracy', 'mse' | epochs: int - Number of epochs to train the model. | batch_size: int - Number of samples per gradient update."""
 
@@ -277,11 +267,7 @@ class Neural_network_runner(BaseModel):
         X, y = split_df(df)
 
         X_train, X_test, y_train, y_test = preprocessing(X, y)
-        return neural_network(X_train, X_test, y_train, y_test,
-                              param.hidden_layers_units,
-                              param.activation_function, param.loss,
-                              param.optimizer, param.metrics, param.epochs,
-                              param.batch_size)  #TODO: params in one
+        return neural_network(X_train, X_test, y_train, y_test, param)
 
 
 if __name__ == "__main__":

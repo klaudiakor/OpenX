@@ -19,3 +19,13 @@ neural_network.py: \
 
 models_evaluation.py: \
     Evaluation of models from previous files.
+
+
+API:
+-----
+To use api run commend:
+uvicorn main:app
+
+And open:
+http://127.0.0.1:8000/docs
+

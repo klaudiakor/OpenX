@@ -1,5 +1,4 @@
-from fastapi import Body, FastAPI
-from typing import Union
+from fastapi import FastAPI
 
 from prepare_dataframe import *
 from heuristic import *
@@ -18,20 +17,37 @@ models = {
 
 @app.get("/model")
 def get_all_models_info():
+    """
+    Returns name, example paramethers and model type about all models.
+    """
     return models
 
 
 @app.get("/model/{model_id}")
 def get_specific_model_info(model_id: str):
+    """"Returns name of selected model, example paramethers and description."""
     return models[model_id]
 
 
-# https://stackoverflow.com/questions/71539448/using-different-pydantic-models-depending-on-the-value-of-fields
-@app.post("/run_model")
-def run_model(params: Union[Heuristic_model_params, Logistic_regression_params,
-                            K_nearest_neighbors_params,
-                            Neural_network_params] = Body(
-                                ..., discriminator='model_type')):
-    model = models[params.model_type]
+@app.post(f"/model/{HEURISTIC_MODEL_NAME}")
+def run_heuristic_model():
+    """Returns accuracy and classification report of heuristic model."""
+    return models[HEURISTIC_MODEL_NAME].run()
 
-    return model.run(params)
+
+@app.post(f"/model/{LOGISTIC_REGR_MODEL_NAME}")
+def run_log_regr_model(params: Logistic_regression_params):
+    """Returns accuracy and classification report of logistic regression model trained on specified paramethers."""
+    return models[LOGISTIC_REGR_MODEL_NAME].run(params)
+
+
+@app.post(f"/model/{KNN_MODEL_NAME}")
+def run_log_regr_model(params: K_nearest_neighbors_params):
+    """Returns accuracy and classification report of K-Nearest neighbors model trained on specified paramethers."""
+    return models[KNN_MODEL_NAME].run(params)
+
+
+@app.post(f"/model/{NEURAL_NETWORK_MODEL_NAME}")
+def run_log_regr_model(params: Neural_network_params):
+    """Returns accuracy and classification report of neural network model trained on specified paramethers."""
+    return models[NEURAL_NETWORK_MODEL_NAME].run(params)

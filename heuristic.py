@@ -1,5 +1,3 @@
-from typing import Literal
-import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 from sklearn.metrics import accuracy_score, classification_report
@@ -58,16 +56,11 @@ def heuristic_classifier(X: pd.DataFrame, y: pd.Series) -> pd.Series:
 HEURISTIC_MODEL_NAME = "heuristic"
 
 
-class Heuristic_model_params(BaseModel):
-    model_type: Literal['heuristic'] = HEURISTIC_MODEL_NAME
-
-
 class Heuristic_model_runner(BaseModel):
     name = "Heuristic"
-    example_params = Heuristic_model_params()
     description = "A simple heuristic classifier that uses wilderness area features to predict cover type labels. | Gets no params."
 
-    def run(param: Heuristic_model_params):
+    def run(self):
         df = prepare_data_frame()
         X, y = split_df(df)
         return heuristic_classifier(X, y)
