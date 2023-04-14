@@ -103,8 +103,10 @@ if __name__ == "__main__":
     X, y = split_df(df)
     X_train, X_test, y_train, y_test = preprocessing(X, y)
 
-    log_reg_score = logistic_regression(X_train, X_test, y_train, y_test)
-    knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test)
+    log_reg_score = logistic_regression(X_train, X_test, y_train, y_test,
+                                        Logistic_regression_params())
+    knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test,
+                                    K_nearest_neighbors_params())
 
     print_results("Logistic Regression", log_reg_score)
     print_results("K-Nearest Neigbours", knn_score)
