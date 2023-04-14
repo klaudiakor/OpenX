@@ -24,8 +24,8 @@ models_evaluation.py: \
 API:
 -----
 To use api run commend:
-    uvicorn main:app
+    `uvicorn main:app`
 
 And open:
-    http://127.0.0.1:8000/docs
+    `http://127.0.0.1:8000/docs`
 
