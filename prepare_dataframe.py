@@ -11,8 +11,8 @@ def get_item_from_txt(path: str, column_index: int) -> list:
     """
 
     items = []
-    with open(path, "r") as f:
-        for line in f:
+    with open(path, "r") as file:
+        for line in file:
             fields = line.split()
             items.append(fields[column_index])
     return items
@@ -66,7 +66,7 @@ def split_df(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     Returns:
     ---
     X - dataframe with all features 
-    
+
     y - vector with response
     """
 
@@ -116,8 +116,9 @@ def print_results(title: str, score: tuple[np.float64, str]):
     print(
         " - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -"
     )
-    print(score[1])
-    print(f"Accuracy: {score[0]}")
+    accuracy, raport = score
+    print(raport)
+    print(f"Accuracy: {accuracy}")
 
 
 if __name__ == "__main__":
