@@ -13,7 +13,7 @@ from prepare_dataframe import *
 
 TARGET_CATEGORIES_NUMBER = 7
 NEURAL_NETWORK_MODEL_NAME = "nn"
-FEATURES_NAMES = get_columns_names()[:-1]
+FEATURES_NAMES = get_columns_names()[:-1]  # without target name
 
 
 class Neural_network_params(BaseModel):
@@ -33,7 +33,7 @@ def prepare_sets(
     """
     This function prepares the data sets needed to train a neural network. 
     
-    It splits the test set into a validation set 
+    It splits the test set to create a validation set 
     and converts the target vectors into a binary matrix representation using one-hot encoding.
     """
 
@@ -55,7 +55,7 @@ def reverse_one_hot_encoding(
         y_test: np.ndarray,
         y_pred: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
-    Convert target vectors one-hot encoding to label encoding 
+    Convert target vectors one-hot encoded to label encode 
     by taking the index of the maximum value along the second dimension of the array.
     """
 
@@ -68,7 +68,7 @@ def reverse_one_hot_encoding(
 def calculate_metrics(y_test: np.ndarray,
                       y_pred: np.ndarray) -> tuple[np.float64, str]:
     """
-    Calculate accuracy score and classification report for a classification model.
+    Calculate the accuracy score and classification report for a classification model, that used one hot encoding.
     """
 
     y_label, y_pred_label = reverse_one_hot_encoding(y_test, y_pred)
@@ -87,6 +87,23 @@ def create_model(hidden_layers_units: list[int], activation_function: str,
                  features_num: int) -> keras.engine.sequential.Sequential:
     """
     Creates a neural network model using Keras with the specified hyperparameters.
+
+    Parameters:
+    ---
+
+    hidden_layers_units: list[int]
+        A list of integers representing the number of neurons for each hidden layer 
+        in the neural network. The first layer is always created with (2 * features_num + 1) neurons.
+    activation_function, loss, optimizer, metrics
+        standard hyperparameters for neural network (check Keras library)
+    features_num: int
+        Number of features which are used to create the model (input dimension)
+    
+    Returns:
+    ----
+
+    model: keras.engine.sequential.Sequential
+        created model
     """
 
     model = Sequential()
@@ -109,7 +126,7 @@ def create_model(hidden_layers_units: list[int], activation_function: str,
 
 def plot_training_curves(history: keras.callbacks.History):
     """
-    Plots the training and validation loss for a given Keras history object.
+    Save plot of the training and validation loss for a given Keras history object.
     
     Parameters:
     ---
@@ -198,11 +215,6 @@ def neural_network(
     return (score, y_pred_label)
 
 
-# def find_best_params(param_grid: dict, X_train: pd.DataFrame,
-#                      X_test: pd.DataFrame, y_train: pd.Series,
-#                      y_test: pd.Series) -> tuple:
-
-
 def find_best_params(param_grid: dict, features: list[str]) -> tuple:
     """
     This function searches for the combination of hyperparameters 
@@ -225,14 +237,8 @@ def find_best_params(param_grid: dict, features: list[str]) -> tuple:
                     'features_names': [['"Wilderness_Area_1", "Wilderness_Area_2", "Wilderness_Area_3", "Wilderness_Area_4"']]
                 }
 
-    X_train : pandas.DataFrame
-        A DataFrame containing the training data.
-    X_test : pandas.DataFrame
-        A DataFrame containing the testing data.
-    y_train : pandas.Series
-        A Series containing the target values for the training data.
-    y_test : pandas.Series
-        A Series containing the target values for the testing data.
+    features: list[str]
+        A list of feature names that will be used to create model.
         
     Returns
     -----------
@@ -258,13 +264,6 @@ def find_best_params(param_grid: dict, features: list[str]) -> tuple:
         params.batch_size = batch_size
 
         score = neural_network(X_train, X_test, y_train, y_test, params)
-        #    hidden_layers_units=hidden_layers_units,
-        #    activation_function=activation_function,
-        #    loss='binary_crossentropy',
-        #    optimizer=optimizer,
-        #    metrics='accuracy',
-        #    epochs=epochs,
-        #    batch_size=batch_size)
 
         print('Hyperparameters:', hyperparams)
         print('Test accuracy:', score[0][0])

@@ -84,21 +84,21 @@ class Logistic_regression_runner(BaseModel):
     description = """ Trains the logistic regression model | Params: | penalty: {'l1', 'l2', 'elasticnet', 'none'} - Specify the norm of the penalty
     max_iter: int - Maximum number of iterations taken for the solvers to converge"""
 
-    def run(self, param: Logistic_regression_params):
+    def run(self, param: Logistic_regression_params) -> dict:
 
         X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
             param.features_names)
         score, y_pred = logistic_regression(X_train, X_test, y_train, y_test,
                                             param)
 
-        {"accuracy": score[0], "prediction": y_pred.tolist()}
+        return {"accuracy": score[0], "prediction": y_pred.tolist()}
 
 
 class K_nearest_neighbors_runner(BaseModel):
     name = "K-Nearest Neighbors"
     description = "Trains a k-nearest neighbors classifier. | Params: |n_neighbors: int, default=5 Number of neighbors to use by default for kneighbors queries. weights : {'uniform', 'distance'} , default='uniform' Weight function used in prediction."
 
-    def run(self, param: K_nearest_neighbors_params):
+    def run(self, param: K_nearest_neighbors_params) -> dict:
 
         X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
             param.features_names)
@@ -117,8 +117,8 @@ if __name__ == "__main__":
 
     log_reg_score = logistic_regression(X_train, X_test, y_train, y_test,
                                         log_regr_params)[0]
-    # knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test,
-    #                                 K_nearest_neighbors_params())[0]
+    knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test,
+                                    K_nearest_neighbors_params())[0]
 
     print_results("Logistic Regression", log_reg_score)
-    # print_results("K-Nearest Neigbours", knn_score)
+    print_results("K-Nearest Neigbours", knn_score)

@@ -9,6 +9,7 @@ def get_item_from_txt(path: str, column_index: int) -> list:
     Reads a text file from the given path and returns a list of items
     extracted from the specified column.
     """
+
     items = []
     with open(path, "r") as f:
         for line in f:
@@ -21,6 +22,7 @@ def get_columns_names() -> list[str]:
     """
     Return list of columns names
     """
+
     ATTRIBUTE_NAMES_COLUMN_INDEX = 0
     SOIL_TYPES_COLUMN_INDEX = 1
 
@@ -48,10 +50,11 @@ def get_columns_names() -> list[str]:
     return columns
 
 
-def prepare_data_frame():
+def prepare_data_frame() -> pd.DataFrame:
     """
     Load the Covertype Data Set and returns dataframe with column names.
     """
+
     df = pd.read_csv('data/covtype.data')
     df.columns = get_columns_names()
 
@@ -60,10 +63,10 @@ def prepare_data_frame():
 
 def split_df(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     """
-    returns:
-
+    Returns:
+    ---
     X - dataframe with all features 
-
+    
     y - vector with response
     """
 
@@ -79,6 +82,7 @@ def preprocessing(
     """
     Preprocesses the input features and labels by scaling the features and splitting them into training and testing sets.
     """
+
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
 

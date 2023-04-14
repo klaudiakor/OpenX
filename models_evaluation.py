@@ -13,7 +13,7 @@ print(
 )
 
 # Heuristic classifier
-heuristic_score = heuristic_classifier(X, y)
+heuristic_score = heuristic_classifier(X, y)[0]
 print_results("Heuristic Classifier", heuristic_score)
 
 X_train, X_test, y_train, y_test = preprocessing(X, y)
@@ -43,6 +43,7 @@ print_results("K-Nearest Neighbors", knn_score)
 # 'hidden_layers_units': [[
 #     FEATURES_NUMBER // 2, FEATURES_NUMBER // 4
 # ], [FEATURES_NUMBER // 2], []]
+# and all 54 features
 
 # (batch_size: 64, epochs: 20, optimizer: 'adam', activation_function: 'tanh', hidden_layers_units: [27, 13])
 
@@ -58,14 +59,5 @@ nn_score = neural_network(X_train,
                           y_test,
                           params,
                           visualization=True)[0]
-#   hidden_layers_units=[27, 13],
-#   activation_function='tanh',
-#   loss='binary_crossentropy',
-#   optimizer='adam',
-#   metrics='accuracy',
-#   epochs=20,
-#   batch_size=64,
-#   visualization=True)
-#TODO
 
 print_results("Neural Network", nn_score)
