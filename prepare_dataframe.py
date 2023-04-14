@@ -54,6 +54,7 @@ def prepare_data_frame():
     """
     df = pd.read_csv('data/covtype.data')
     df.columns = get_columns_names()
+
     return df
 
 
@@ -86,6 +87,18 @@ def preprocessing(
                                                         train_size=0.70,
                                                         random_state=1)
     return X_train, X_test, y_train, y_test
+
+
+def prepare_data_for_model_with_selected_features(
+    features_names: list[str]
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+
+    df = prepare_data_frame()
+
+    X, y = split_df(df)
+    X = X[features_names]
+
+    return preprocessing(X, y)
 
 
 def print_results(title: str, score: tuple[np.float64, str]):

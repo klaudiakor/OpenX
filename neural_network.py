@@ -11,9 +11,9 @@ from itertools import product
 
 from prepare_dataframe import *
 
-FEATURES_NUMBER = 54
 TARGET_CATEGORIES_NUMBER = 7
 NEURAL_NETWORK_MODEL_NAME = "nn"
+FEATURES_NAMES = get_columns_names()[:-1]
 
 
 class Neural_network_params(BaseModel):
@@ -24,6 +24,7 @@ class Neural_network_params(BaseModel):
     metrics = 'accuracy'
     epochs = 10
     batch_size = 32
+    features_names = FEATURES_NAMES
 
 
 def prepare_sets(
@@ -82,8 +83,8 @@ def calculate_metrics(y_test: np.ndarray,
 
 
 def create_model(hidden_layers_units: list[int], activation_function: str,
-                 loss: str, optimizer: str,
-                 metrics: str) -> keras.engine.sequential.Sequential:
+                 loss: str, optimizer: str, metrics: str,
+                 features_num: int) -> keras.engine.sequential.Sequential:
     """
     Creates a neural network model using Keras with the specified hyperparameters.
     """
@@ -91,8 +92,8 @@ def create_model(hidden_layers_units: list[int], activation_function: str,
     model = Sequential()
 
     model.add(
-        Dense(2 * FEATURES_NUMBER + 1,
-              input_dim=FEATURES_NUMBER,
+        Dense(2 * features_num + 1,
+              input_dim=features_num,
               activation=activation_function))
 
     for i in range(len(hidden_layers_units)):
@@ -126,12 +127,13 @@ def plot_training_curves(history: keras.callbacks.History):
     # plt.show()
 
 
-def neural_network(X_train: pd.DataFrame,
-                   X_test: pd.DataFrame,
-                   y_train: pd.Series,
-                   y_test: pd.Series,
-                   params: Neural_network_params,
-                   visualization=False) -> tuple[np.float64, str]:
+def neural_network(
+        X_train: pd.DataFrame,
+        X_test: pd.DataFrame,
+        y_train: pd.Series,
+        y_test: pd.Series,
+        params: Neural_network_params,
+        visualization=False) -> tuple[tuple[np.float64, str], np.ndarray]:
     """
     Trains a neural network model on the provided training data 
     and returns the accuracy score and classification report on the test data.
@@ -166,7 +168,7 @@ def neural_network(X_train: pd.DataFrame,
         
     Returns:
     -----------
-    Tuple with accuracy of model and classification report
+    Tuple with accuracy of model and classification report and vector of prediction.
     """
 
     X_test, X_valid, y_train, y_test, y_valid = prepare_sets(
@@ -176,7 +178,8 @@ def neural_network(X_train: pd.DataFrame,
                          activation_function=params.activation_function,
                          loss=params.loss,
                          optimizer=params.optimizer,
-                         metrics=params.metrics)
+                         metrics=params.metrics,
+                         features_num=len(params.features_names))
 
     history = model.fit(X_train,
                         y_train,
@@ -190,12 +193,16 @@ def neural_network(X_train: pd.DataFrame,
     if visualization:
         plot_training_curves(history)
 
-    return calculate_metrics(y_test, y_pred)
+    score = calculate_metrics(y_test, y_pred)
+    return (score, y_pred)
 
 
-def find_best_params(param_grid: dict, X_train: pd.DataFrame,
-                     X_test: pd.DataFrame, y_train: pd.Series,
-                     y_test: pd.Series) -> tuple:
+# def find_best_params(param_grid: dict, X_train: pd.DataFrame,
+#                      X_test: pd.DataFrame, y_train: pd.Series,
+#                      y_test: pd.Series) -> tuple:
+
+
+def find_best_params(param_grid: dict, features: list[str]) -> tuple:
     """
     This function searches for the combination of hyperparameters 
     that yields the highest accuracy on the testing data. 
@@ -213,7 +220,8 @@ def find_best_params(param_grid: dict, X_train: pd.DataFrame,
                     'epochs': [10, 20],
                     'optimizer': ['adam', 'sgd'],
                     'activation_function':['relu', 'tanh']
-                    'hidden_layers_units': [[FEATURES_NUMBER // 2, FEATURES_NUMBER // 4], [FEATURES_NUMBER // 2], []]
+                    'hidden_layers_units': [[FEATURES_NUMBER // 2, FEATURES_NUMBER // 4], [FEATURES_NUMBER // 2], []],
+                    'features_names': [['"Wilderness_Area_1", "Wilderness_Area_2", "Wilderness_Area_3", "Wilderness_Area_4"']]
                 }
 
     X_train : pandas.DataFrame
@@ -230,6 +238,10 @@ def find_best_params(param_grid: dict, X_train: pd.DataFrame,
     A tuple containing the hyperparameters with the highest accuracy in the following order: 
         batch_size, epochs, optimizer, activation_function, and hidden_layers_units.
     """
+    params = Neural_network_params(features_names=features)
+
+    X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
+        features)
 
     hyperparam_results = [
     ]  # list of accuracies for each set of hyperparameters
@@ -238,17 +250,20 @@ def find_best_params(param_grid: dict, X_train: pd.DataFrame,
     for hyperparams in all_hyperparams:
         batch_size, epochs, optimizer, activation_function, hidden_layers_units = hyperparams
 
-        score = neural_network(X_train,
-                               X_test,
-                               y_train,
-                               y_test,
-                               hidden_layers_units=hidden_layers_units,
-                               activation_function=activation_function,
-                               loss='binary_crossentropy',
-                               optimizer=optimizer,
-                               metrics='accuracy',
-                               epochs=epochs,
-                               batch_size=batch_size)
+        params.hidden_layers_units = hidden_layers_units
+        params.activation_function = activation_function
+        params.optimizer = optimizer
+        params.epochs = epochs
+        params.batch_size = batch_size
+
+        score = neural_network(X_train, X_test, y_train, y_test, params)
+        #    hidden_layers_units=hidden_layers_units,
+        #    activation_function=activation_function,
+        #    loss='binary_crossentropy',
+        #    optimizer=optimizer,
+        #    metrics='accuracy',
+        #    epochs=epochs,
+        #    batch_size=batch_size)
 
         print('Hyperparameters:', hyperparams)
         print('Test accuracy:', score[0])
@@ -263,19 +278,15 @@ class Neural_network_runner(BaseModel):
     Params: hidden_layers_units: list[int] - A number of neurons in each hidden layer. | activation_function: str - Eg. 'linear', 'relu', 'tanh', 'sigmoid' | loss: str - Loss function. Eg. 'binary_crossentropy' | optimizer: str - Eg. 'Adam', 'sgd' | metrics: str - Eg. 'accuracy', 'mse' | epochs: int - Number of epochs to train the model. | batch_size: int - Number of samples per gradient update."""
 
     def run(self, param: Neural_network_params):
-        df = prepare_data_frame()
-        X, y = split_df(df)
 
-        X_train, X_test, y_train, y_test = preprocessing(X, y)
-        return neural_network(X_train, X_test, y_train, y_test, param)
+        X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
+            param.features_names)
+
+        score, y_pred = neural_network(X_train, X_test, y_train, y_test, param)
+        return {"accuracy": score[0], "prediction": y_pred}
 
 
 if __name__ == "__main__":
-
-    df = prepare_data_frame()
-    X, y = split_df(df)
-
-    X_train, X_test, y_train, y_test = preprocessing(X, y)
 
     result = find_best_params(
         {
@@ -283,9 +294,8 @@ if __name__ == "__main__":
             'epochs': [10, 20],
             'optimizer': ['adam', 'sgd'],
             'activation_function': ['relu', 'tanh'],
-            'hidden_layers_units': [[
-                FEATURES_NUMBER // 2, FEATURES_NUMBER // 4
-            ], [FEATURES_NUMBER // 2], []]
-        }, X_train, X_test, y_train, y_test)
+            'hidden_layers_units': [[54 // 2, 54 // 4], [54 // 2], []],
+        },
+        features=FEATURES_NAMES)
 
     print(result)

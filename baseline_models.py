@@ -8,21 +8,25 @@ from prepare_dataframe import *
 
 LOGISTIC_REGR_MODEL_NAME = "logistic"
 KNN_MODEL_NAME = "knn"
+FEATURES_NAMES = get_columns_names()[:-1]
 
 
 class Logistic_regression_params(BaseModel):
     penalty = 'l2'
     max_iter = 10000
+    features_names = FEATURES_NAMES
 
 
 class K_nearest_neighbors_params(BaseModel):
     n_neighbors = 5
     weights = 'uniform'
+    features_names = FEATURES_NAMES
 
 
-def logistic_regression(X_train: pd.DataFrame, X_test: pd.DataFrame,
-                        y_train: pd.Series, y_test: pd.Series,
-                        params: Logistic_regression_params) -> np.float64:
+def logistic_regression(
+    X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series,
+    y_test: pd.Series, params: Logistic_regression_params
+) -> tuple[tuple[np.float64, str], np.ndarray]:
     """
     Trains a logistic regression model on the provided training data.
     
@@ -32,21 +36,25 @@ def logistic_regression(X_train: pd.DataFrame, X_test: pd.DataFrame,
         max_iter:
             Maximum number of iterations taken for the solvers to converge
             
-    Returns the tuple with accuracy score and classification report.
+    Returns the tuple with accuracy score and classification report and vector of prediction.
     """
 
     model = LogisticRegression(max_iter=params.max_iter,
                                penalty=params.penalty)
     model.fit(X_train, y_train)
+
     y_pred = model.predict(X_test)
 
-    return accuracy_score(y_test,
-                          y_pred), classification_report(y_test, y_pred)
+    score = (accuracy_score(y_test,
+                            y_pred), classification_report(y_test, y_pred))
+
+    return (score, y_pred)
 
 
-def k_nearest_neighbors(X_train: pd.DataFrame, X_test: pd.DataFrame,
-                        y_train: pd.Series, y_test: pd.Series,
-                        params: K_nearest_neighbors_params) -> np.float64:
+def k_nearest_neighbors(
+    X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series,
+    y_test: pd.Series, params: K_nearest_neighbors_params
+) -> tuple[tuple[np.float64, str], np.ndarray]:
     """
     Trains a k-nearest neighbors classifier on the provided training data.
     
@@ -57,7 +65,7 @@ def k_nearest_neighbors(X_train: pd.DataFrame, X_test: pd.DataFrame,
         weights : {'uniform', 'distance'} , default='uniform'
             Weight function used in prediction. 
         
-    Returns the tuple with accuracy score and classification report.
+    Returns the tuple with accuracy score and classification report and vector of prediction.
     """
 
     model = KNeighborsClassifier(n_neighbors=params.n_neighbors,
@@ -65,8 +73,10 @@ def k_nearest_neighbors(X_train: pd.DataFrame, X_test: pd.DataFrame,
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    return accuracy_score(y_test,
-                          y_pred), classification_report(y_test, y_pred)
+    score = (accuracy_score(y_test,
+                            y_pred), classification_report(y_test, y_pred))
+
+    return (score, y_pred)
 
 
 class Logistic_regression_runner(BaseModel):
@@ -76,11 +86,12 @@ class Logistic_regression_runner(BaseModel):
 
     def run(self, param: Logistic_regression_params):
 
-        df = prepare_data_frame()
-        X, y = split_df(df)
+        X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
+            param.features_names)
+        score, y_pred = logistic_regression(X_train, X_test, y_train, y_test,
+                                            param)
 
-        X_train, X_test, y_train, y_test = preprocessing(X, y)
-        return logistic_regression(X_train, X_test, y_train, y_test, param)
+        {"accuracy": score[0], "prediction": y_pred}
 
 
 class K_nearest_neighbors_runner(BaseModel):
@@ -89,22 +100,25 @@ class K_nearest_neighbors_runner(BaseModel):
 
     def run(self, param: K_nearest_neighbors_params):
 
-        df = prepare_data_frame()
-        X, y = split_df(df)
+        X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
+            param.features_names)
 
-        X_train, X_test, y_train, y_test = preprocessing(X, y)
-        return k_nearest_neighbors(X_train, X_test, y_train, y_test, param)
+        score, y_pred = k_nearest_neighbors(X_train, X_test, y_train, y_test,
+                                            param)
+
+        return {"accuracy": score[0], "prediction": y_pred}
 
 
 if __name__ == "__main__":
-    df = prepare_data_frame()
-    X, y = split_df(df)
-    X_train, X_test, y_train, y_test = preprocessing(X, y)
+
+    log_regr_params = Logistic_regression_params()
+    X_train, X_test, y_train, y_test = prepare_data_for_model_with_selected_features(
+        log_regr_params.features_names)
 
     log_reg_score = logistic_regression(X_train, X_test, y_train, y_test,
-                                        Logistic_regression_params())
-    knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test,
-                                    K_nearest_neighbors_params())
+                                        log_regr_params)[0]
+    # knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test,
+    #                                 K_nearest_neighbors_params())[0]
 
     print_results("Logistic Regression", log_reg_score)
-    print_results("K-Nearest Neigbours", knn_score)
+    # print_results("K-Nearest Neigbours", knn_score)
