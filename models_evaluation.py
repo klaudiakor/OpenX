@@ -1,9 +1,9 @@
-from prepare_dataframe import *
-from heuristic import *
-from baseline_models import *
-from neural_network import *
+from prepare_dataframe import prepare_data_frame, split_df, preprocessing, print_results
+from heuristic import heuristic_classifier
+from baseline_models import Logistic_regression_params, logistic_regression, K_nearest_neighbors_params, k_nearest_neighbors
+from neural_network import Neural_network_params, neural_network
 
-#LOAD DATA
+# Load data
 df = prepare_data_frame()
 # print(df.isna().sum()) # there is no lacking data
 X, y = split_df(df)

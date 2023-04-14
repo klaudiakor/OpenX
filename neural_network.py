@@ -1,5 +1,6 @@
 import keras
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense
@@ -9,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from itertools import product
 
-from prepare_dataframe import *
+from prepare_dataframe import get_columns_names, prepare_data_for_model_with_selected_features
 
 TARGET_CATEGORIES_NUMBER = 7
 NEURAL_NETWORK_MODEL_NAME = "nn"
@@ -141,7 +142,6 @@ def plot_training_curves(history: keras.callbacks.History):
     plt.ylabel('Loss')
     plt.legend()
     plt.savefig("nn_training_curves.png")
-    # plt.show()
 
 
 def neural_network(
@@ -263,13 +263,15 @@ def find_best_params(param_grid: dict, features: list[str]) -> tuple:
         params.epochs = epochs
         params.batch_size = batch_size
 
-        score = neural_network(X_train, X_test, y_train, y_test, params)
+        result = neural_network(X_train, X_test, y_train, y_test, params)
+        acc = result[0][0]
 
         print('Hyperparameters:', hyperparams)
-        print('Test accuracy:', score[0][0])
-        hyperparam_results.append((score[0][0], hyperparams))
+        print('Test accuracy:', acc)
+        hyperparam_results.append((acc, hyperparams))
+        HYPERPARAM_IDX = 1
 
-    return max(hyperparam_results, key=lambda x: x[0])[1]
+    return max(hyperparam_results, key=lambda x: x[0])[HYPERPARAM_IDX]
 
 
 class Neural_network_runner(BaseModel):

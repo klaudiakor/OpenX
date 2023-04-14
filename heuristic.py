@@ -2,7 +2,7 @@ import pandas as pd
 from pydantic import BaseModel
 from sklearn.metrics import accuracy_score, classification_report
 
-from prepare_dataframe import *
+from prepare_dataframe import prepare_data_frame, split_df, print_results
 
 HEURISTIC_MODEL_NAME = "heuristic"
 
