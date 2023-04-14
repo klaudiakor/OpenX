@@ -194,7 +194,8 @@ def neural_network(
         plot_training_curves(history)
 
     score = calculate_metrics(y_test, y_pred)
-    return (score, y_pred)
+    y_pred_label = np.argmax(y_test, axis=1)
+    return (score, y_pred_label)
 
 
 # def find_best_params(param_grid: dict, X_train: pd.DataFrame,
@@ -266,8 +267,8 @@ def find_best_params(param_grid: dict, features: list[str]) -> tuple:
         #    batch_size=batch_size)
 
         print('Hyperparameters:', hyperparams)
-        print('Test accuracy:', score[0])
-        hyperparam_results.append((score[0], hyperparams))
+        print('Test accuracy:', score[0][0])
+        hyperparam_results.append((score[0][0], hyperparams))
 
     return max(hyperparam_results, key=lambda x: x[0])[1]
 
@@ -283,7 +284,8 @@ class Neural_network_runner(BaseModel):
             param.features_names)
 
         score, y_pred = neural_network(X_train, X_test, y_train, y_test, param)
-        return {"accuracy": score[0], "prediction": y_pred}
+
+        return {"accuracy": score[0], "prediction": y_pred.tolist()}
 
 
 if __name__ == "__main__":

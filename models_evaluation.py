@@ -19,10 +19,18 @@ print_results("Heuristic Classifier", heuristic_score)
 X_train, X_test, y_train, y_test = preprocessing(X, y)
 
 # Baseline models
-log_reg_score = logistic_regression(X_train, X_test, y_train, y_test)
+log_reg_score = logistic_regression(X_train,
+                                    X_test,
+                                    y_train,
+                                    y_test,
+                                    params=Logistic_regression_params())[0]
 print_results("Logistic Regression", log_reg_score)
 
-knn_score = k_nearest_neighbors(X_train, X_test, y_train, y_test)
+knn_score = k_nearest_neighbors(X_train,
+                                X_test,
+                                y_train,
+                                y_test,
+                                params=K_nearest_neighbors_params())[0]
 print_results("K-Nearest Neighbors", knn_score)
 
 # Neural network
@@ -38,17 +46,26 @@ print_results("K-Nearest Neighbors", knn_score)
 
 # (batch_size: 64, epochs: 20, optimizer: 'adam', activation_function: 'tanh', hidden_layers_units: [27, 13])
 
+params = Neural_network_params(batch_size=64,
+                               epochs=20,
+                               optimizer='adam',
+                               activation_function='tanh',
+                               hidden_layers_units=[27, 13])
+
 nn_score = neural_network(X_train,
                           X_test,
                           y_train,
                           y_test,
-                          hidden_layers_units=[27, 13],
-                          activation_function='tanh',
-                          loss='binary_crossentropy',
-                          optimizer='adam',
-                          metrics='accuracy',
-                          epochs=20,
-                          batch_size=64,
-                          visualization=True)
+                          params,
+                          visualization=True)[0]
+#   hidden_layers_units=[27, 13],
+#   activation_function='tanh',
+#   loss='binary_crossentropy',
+#   optimizer='adam',
+#   metrics='accuracy',
+#   epochs=20,
+#   batch_size=64,
+#   visualization=True)
+#TODO
 
 print_results("Neural Network", nn_score)

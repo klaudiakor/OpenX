@@ -93,7 +93,7 @@ def prepare_data_for_model_with_selected_features(
     features_names: list[str]
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
 
-    df = prepare_data_frame()
+    df = prepare_data_frame()[:100]  #TODO
 
     X, y = split_df(df)
     X = X[features_names]

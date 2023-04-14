@@ -91,7 +91,7 @@ class Logistic_regression_runner(BaseModel):
         score, y_pred = logistic_regression(X_train, X_test, y_train, y_test,
                                             param)
 
-        {"accuracy": score[0], "prediction": y_pred}
+        {"accuracy": score[0], "prediction": y_pred.tolist()}
 
 
 class K_nearest_neighbors_runner(BaseModel):
@@ -106,7 +106,7 @@ class K_nearest_neighbors_runner(BaseModel):
         score, y_pred = k_nearest_neighbors(X_train, X_test, y_train, y_test,
                                             param)
 
-        return {"accuracy": score[0], "prediction": y_pred}
+        return {"accuracy": score[0], "prediction": y_pred.tolist()}
 
 
 if __name__ == "__main__":
