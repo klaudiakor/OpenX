@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-
 from heuristic import Heuristic_model_runner, HEURISTIC_MODEL_NAME
-from baseline_models import Logistic_regression_runner, K_nearest_neighbors_runner, LOGISTIC_REGR_MODEL_NAME, KNN_MODEL_NAME
-from neural_network import Neural_network_runner, NEURAL_NETWORK_MODEL_NAME
+from baseline_models import Logistic_regression_runner, K_nearest_neighbors_runner, Logistic_regression_params, K_nearest_neighbors_params, LOGISTIC_REGR_MODEL_NAME, KNN_MODEL_NAME
+from neural_network import Neural_network_runner, Neural_network_params, NEURAL_NETWORK_MODEL_NAME
 
 app = FastAPI()
 

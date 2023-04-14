@@ -1,10 +1,11 @@
 import numpy as np
+import pandas as pd
 from pydantic import BaseModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
-from prepare_dataframe import *
+from prepare_dataframe import get_columns_names, prepare_data_for_model_with_selected_features, print_results
 
 LOGISTIC_REGR_MODEL_NAME = "logistic"
 KNN_MODEL_NAME = "knn"
